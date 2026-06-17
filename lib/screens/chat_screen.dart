@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'home_screen.dart'; // we need the Doctor class
- 
+import 'package:app/models/doctor.dart'; // we need the Doctor class 
 // A tiny model for one chat message.
 class ChatMessage {
   final String text;

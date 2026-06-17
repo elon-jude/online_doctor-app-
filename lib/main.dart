@@ -45,14 +45,13 @@ class MediConnectApp extends StatelessWidget {
       // THE ROUTE TABLE — the heart of this lab.
       // Each entry maps a route NAME to a screen WIDGET.
       // ─────────────────────────────────────────────
-      initialRoute: '/',          // the first screen shown when the app starts
-      routes: {
-        '/':         (context) => const SplashScreen(),
-        '/login':    (context) => const LoginScreen(),
-        '/register': (context) => const RegisterScreen(),
-        '/home':     (context) => const HomeScreen(),
-        '/chat':     (context) => const ChatScreen(),
-      },
+      initialRoute: '/splash',    // the first screen shown when the app starts
+     routes: {
+      '/splash': (context) => SplashScreen(),
+      '/login': (context) => LoginScreen(),
+      '/register': (context) => RegisterScreen(),
+      '/home': (context) => HomeScreen(),
+},
     );
   }
 }
