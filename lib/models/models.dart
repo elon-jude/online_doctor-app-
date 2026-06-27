@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class Doctor {
   final String id;
   final String name;
@@ -73,12 +75,12 @@ final List<Doctor> sampleDoctors = [
     rating: 4.9,
     reviewCount: 312,
     experience: 12,
-    consultationFee: 80,
+    consultationFee: 8,
     isAvailable: true,
     about:
         'Dr. Ama Serwaa is a board-certified cardiologist with over 12 years of experience treating heart conditions. She specializes in preventive cardiology and heart failure management.',
     workingHours: ['Mon-Fri: 8am - 5pm', 'Sat: 9am - 1pm'],
-    tags: ['Heart', 'Hypertension', 'ECG'],
+    tags: ['Heart', 'Hypertension'],
   ),
   const Doctor(
     id: '2',
@@ -88,7 +90,7 @@ final List<Doctor> sampleDoctors = [
     rating: 4.7,
     reviewCount: 198,
     experience: 8,
-    consultationFee: 65,
+    consultationFee: 6,
     isAvailable: true,
     about:
         'Dr. Kofi Mensah specializes in skin disorders and cosmetic dermatology. He has extensive experience in treating acne, eczema, psoriasis, and skin cancer screening.',
@@ -103,7 +105,7 @@ final List<Doctor> sampleDoctors = [
     rating: 4.8,
     reviewCount: 425,
     experience: 15,
-    consultationFee: 70,
+    consultationFee: 7,
     isAvailable: false,
     about:
         'Dr. Efua Boateng is a highly experienced pediatrician dedicated to the health and well-being of children from birth through adolescence.',
@@ -118,7 +120,7 @@ final List<Doctor> sampleDoctors = [
     rating: 4.6,
     reviewCount: 540,
     experience: 10,
-    consultationFee: 50,
+    consultationFee: 5,
     isAvailable: true,
     about:
         'Dr. Kwame Asante is a dedicated general practitioner providing comprehensive primary care for patients of all ages. He focuses on preventive medicine and chronic disease management.',
@@ -133,7 +135,7 @@ final List<Doctor> sampleDoctors = [
     rating: 4.9,
     reviewCount: 167,
     experience: 18,
-    consultationFee: 100,
+    consultationFee: 10,
     isAvailable: true,
     about:
         'Dr. Abena Osei is a leading neurologist with expertise in treating migraines, epilepsy, and neurodegenerative diseases.',
@@ -148,7 +150,7 @@ final List<Doctor> sampleDoctors = [
     rating: 4.7,
     reviewCount: 289,
     experience: 14,
-    consultationFee: 90,
+    consultationFee: 9,
     isAvailable: false,
     about:
         'Dr. Yaw Darko is an orthopedic surgeon specializing in sports injuries, joint replacements, and spinal disorders.',
@@ -168,10 +170,34 @@ final List<String> specialties = [
 ];
 
 final List<Map<String, dynamic>> categories = [
-  {'icon': '❤️', 'label': 'Cardiology', 'specialty': 'Cardiologist'},
-  {'icon': '🧴', 'label': 'Dermatology', 'specialty': 'Dermatologist'},
-  {'icon': '👶', 'label': 'Pediatrics', 'specialty': 'Pediatrician'},
-  {'icon': '🧠', 'label': 'Neurology', 'specialty': 'Neurologist'},
-  {'icon': '🦴', 'label': 'Orthopedics', 'specialty': 'Orthopedic Surgeon'},
-  {'icon': '🩺', 'label': 'General', 'specialty': 'General Practitioner'},
+  {
+    'icon': Icons.favorite_rounded,
+    'label': 'Cardiology',
+    'specialty': 'Cardiologist',
+  },
+  {
+    'icon': Icons.face_retouching_natural_rounded,
+    'label': 'Dermatology',
+    'specialty': 'Dermatologist',
+  },
+  {
+    'icon': Icons.child_care_rounded,
+    'label': 'Pediatrics',
+    'specialty': 'Pediatrician',
+  },
+  {
+    'icon': Icons.psychology_rounded,
+    'label': 'Neurology',
+    'specialty': 'Neurologist',
+  },
+  {
+    'icon': Icons.accessibility_new_rounded,
+    'label': 'Orthopedics',
+    'specialty': 'Orthopedic Surgeon',
+  },
+  {
+    'icon': Icons.medical_services_rounded,
+    'label': 'General',
+    'specialty': 'General Practitioner',
+  },
 ];

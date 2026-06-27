@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-<<<<<<< HEAD
 import 'package:google_fonts/google_fonts.dart';
-import '../theme/app_theme.dart';
+
 import '../models/models.dart';
+import '../theme/app_theme.dart';
 import 'doctor_detail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -13,496 +13,435 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final TextEditingController _searchController = TextEditingController();
   String _selectedSpecialty = 'All';
-  final _searchController = TextEditingController();
   String _searchQuery = '';
 
   List<Doctor> get _filteredDoctors {
-    return sampleDoctors.where((d) {
+    final query = _searchQuery.trim().toLowerCase();
+
+    return sampleDoctors.where((doctor) {
       final matchesSpecialty =
-          _selectedSpecialty == 'All' || d.specialty == _selectedSpecialty;
-      final matchesSearch = _searchQuery.isEmpty ||
-          d.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          d.specialty.toLowerCase().contains(_searchQuery.toLowerCase());
+          _selectedSpecialty == 'All' || doctor.specialty == _selectedSpecialty;
+      final matchesSearch = query.isEmpty ||
+          doctor.name.toLowerCase().contains(query) ||
+          doctor.specialty.toLowerCase().contains(query) ||
+          doctor.tags.any((tag) => tag.toLowerCase().contains(query));
+
       return matchesSpecialty && matchesSearch;
     }).toList();
   }
 
   @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _openDoctor(Doctor doctor) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => DoctorDetailScreen(doctor: doctor),
+      ),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final filteredDoctors = _filteredDoctors;
+
     return Scaffold(
       backgroundColor: AppTheme.background,
       body: CustomScrollView(
         slivers: [
-          // Header
           SliverToBoxAdapter(
-            child: Container(
-              padding: EdgeInsets.fromLTRB(
-                  24, MediaQuery.of(context).padding.top + 16, 24, 24),
-              decoration: const BoxDecoration(
-                color: AppTheme.primary,
-                borderRadius: BorderRadius.vertical(
-                  bottom: Radius.circular(28),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Good morning, Jude 👋',
-                            style: GoogleFonts.nunito(
-                              fontSize: 13,
-                              color: Colors.white.withOpacity(0.8),
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Find a Doctor',
-                            style: GoogleFonts.nunito(
-                              fontSize: 24,
-                              fontWeight: FontWeight.w800,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
-                      GestureDetector(
-                        onTap: () {},
-                        child: Stack(
-                          children: [
-                            CircleAvatar(
-                              radius: 22,
-                              backgroundColor:
-                                  Colors.white.withOpacity(0.2),
-                              child: const Icon(
-                                Icons.person,
-                                color: Colors.white,
-                                size: 24,
-                              ),
-                            ),
-                            Positioned(
-                              top: 0,
-                              right: 0,
-                              child: Container(
-                                width: 12,
-                                height: 12,
-                                decoration: BoxDecoration(
-                                  color: AppTheme.accent,
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                      color: AppTheme.primary, width: 2),
-                                ),
-=======
-// we need the Doctor class
-// ─────────────────────────────────────────────
-// MODEL CLASS: a plain Dart object that holds
-// the data describing one doctor.
-// ─────────────────────────────────────────────
-class Doctor {
-  final String name;
-  final String specialty;
-  final double rating;
-  final bool isOnline;
- 
-  const Doctor({
-    required this.name,
-    required this.specialty,
-    required this.rating,
-    required this.isOnline,
-  });
-}
- 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
- 
-  // Our "database" — a hard-coded list for this lab.
-  // In ENCE 216 Part 2 we will replace this with a real API call.
-  static const List<Doctor> doctors = [
-    Doctor(
-        name: 'Dr. Ama Mensah',
-        specialty: 'General Practitioner',
-        rating: 4.9,
-        isOnline: true),
-    Doctor(
-        name: 'Dr. Kofi Asante',
-        specialty: 'Cardiologist',
-        rating: 4.8,
-        isOnline: true),
-    Doctor(
-        name: 'Dr. Efua Boateng',
-        specialty: 'Pediatrician',
-        rating: 4.7,
-        isOnline: false),
-    Doctor(
-        name: 'Dr. Yaw Owusu',
-        specialty: 'Dermatologist',
-        rating: 4.6,
-        isOnline: true),
-    Doctor(
-        name: 'Dr. Akosua Darko',
-        specialty: 'Psychiatrist',
-        rating: 4.9,
-        isOnline: false),
-  ];
- 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Available Doctors'),
-        backgroundColor: Colors.teal,
-        foregroundColor: Colors.white,
-        automaticallyImplyLeading: false, // hides the back arrow —
-        // remember, we CLEARED the stack after login, so there is
-        // nothing to go back to anyway.
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: 'Logout',
-            onPressed: () {
-              // Logging out = wipe the stack and return to login.
-              Navigator.pushNamedAndRemoveUntil(
-                  context, '/login', (route) => false);
-            },
-          ),
-        ],
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Padding(
-            padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Text(
-              'Tap a doctor to start a consultation',
-              style: TextStyle(color: Colors.grey, fontSize: 14),
+            child: _HomeHeader(
+              searchController: _searchController,
+              onSearchChanged: (value) => setState(() => _searchQuery = value),
             ),
           ),
-          Expanded(
-            // ListView.builder only builds the items currently
-            // visible on screen — efficient even for 10,000 items.
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              itemCount: doctors.length,
-              itemBuilder: (context, index) {
-                final doctor = doctors[index];
-                return Card(
-                  margin: const EdgeInsets.symmetric(vertical: 6),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 8),
-                    leading: CircleAvatar(
-                      radius: 26,
-                      backgroundColor: Colors.teal.shade100,
-                      child: const Icon(Icons.person,
-                          color: Colors.teal, size: 30),
-                    ),
-                    title: Text(
-                      doctor.name,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(doctor.specialty),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            const Icon(Icons.star,
-                                size: 16, color: Colors.amber),
-                            Text(' ${doctor.rating}'),
-                            const SizedBox(width: 12),
-                            Container(
-                              width: 8,
-                              height: 8,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: doctor.isOnline
-                                    ? Colors.green
-                                    : Colors.grey,
-                              ),
-                            ),
-                            Text(
-                              doctor.isOnline ? ' Online' : ' Offline',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: doctor.isOnline
-                                    ? Colors.green
-                                    : Colors.grey,
->>>>>>> 53f1c756c15a72f04b26b8f5a4ea12932d653af1
-                              ),
-                            ),
-                          ],
-                        ),
-<<<<<<< HEAD
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  // Search bar
-                  Container(
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: TextField(
-                      controller: _searchController,
-                      onChanged: (v) => setState(() => _searchQuery = v),
-                      decoration: InputDecoration(
-                        hintText: 'Search doctors, specialties...',
-                        hintStyle: GoogleFonts.nunito(
-                          color: AppTheme.textLight,
-                          fontSize: 14,
-                        ),
-                        prefixIcon: const Icon(
-                          Icons.search_rounded,
-                          color: AppTheme.textLight,
-                        ),
-                        border: InputBorder.none,
-                        enabledBorder: InputBorder.none,
-                        focusedBorder: InputBorder.none,
-                        contentPadding:
-                            const EdgeInsets.symmetric(vertical: 14),
-                        fillColor: Colors.transparent,
-                        filled: true,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // Categories
           SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 28, 24, 0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Categories',
-                      style: Theme.of(context).textTheme.titleMedium),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    height: 90,
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: categories.length,
-                      separatorBuilder: (_, __) => const SizedBox(width: 12),
-                      itemBuilder: (context, index) {
-                        final cat = categories[index];
-                        final isSelected =
-                            _selectedSpecialty == cat['specialty'];
-                        return GestureDetector(
-                          onTap: () => setState(() {
-                            _selectedSpecialty = isSelected
-                                ? 'All'
-                                : cat['specialty'] as String;
-                          }),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            width: 72,
-                            decoration: BoxDecoration(
-                              color: isSelected
-                                  ? AppTheme.primary
-                                  : AppTheme.surface,
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: isSelected
-                                      ? AppTheme.primary.withOpacity(0.3)
-                                      : Colors.black.withOpacity(0.04),
-                                  blurRadius: 12,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  cat['icon'] as String,
-                                  style: const TextStyle(fontSize: 28),
-                                ),
-                                const SizedBox(height: 6),
-                                Text(
-                                  cat['label'] as String,
-                                  style: GoogleFonts.nunito(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w600,
-                                    color: isSelected
-                                        ? Colors.white
-                                        : AppTheme.textMid,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
+            child: _CategorySection(
+              selectedSpecialty: _selectedSpecialty,
+              onSelected: (specialty) => setState(() {
+                _selectedSpecialty =
+                    _selectedSpecialty == specialty ? 'All' : specialty;
+              }),
             ),
           ),
-
-          // Banner
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
-              child: Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF27C69C), Color(0xFF0B8FAC)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'COVID-19 Safety',
-                            style: GoogleFonts.nunito(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w800,
-                              color: Colors.white,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Consult online and\nstay safe at home',
-                            style: GoogleFonts.nunito(
-                              fontSize: 12,
-                              color: Colors.white.withOpacity(0.85),
-                              height: 1.4,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 14, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Text(
-                              'Learn More',
-                              style: GoogleFonts.nunito(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                                color: AppTheme.primary,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const Text('🏥', style: TextStyle(fontSize: 64)),
-                  ],
-                ),
-              ),
-            ),
-          ),
-
-          // Doctors list
+          const SliverToBoxAdapter(child: _SafetyBanner()),
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(24, 28, 24, 8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Top Doctors',
-                      style: Theme.of(context).textTheme.titleMedium),
-                  TextButton(
-                    onPressed: () {},
-                    child: Text(
-                      'See All',
-                      style: GoogleFonts.nunito(
-                        color: AppTheme.primary,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 13,
-                      ),
+                  Text(
+                    _selectedSpecialty == 'All'
+                        ? 'Top Doctors'
+                        : _selectedSpecialty,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  Text(
+                    '${filteredDoctors.length} found',
+                    style: GoogleFonts.nunito(
+                      color: AppTheme.textLight,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
                     ),
                   ),
                 ],
               ),
             ),
           ),
-
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                final doc = _filteredDoctors[index];
-                return Padding(
-                  padding:
-                      const EdgeInsets.fromLTRB(24, 0, 24, 12),
-                  child: _DoctorCard(
-                    doctor: doc,
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => DoctorDetailScreen(doctor: doc)),
+          if (filteredDoctors.isEmpty)
+            const SliverToBoxAdapter(child: _EmptyDoctorsState())
+          else
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  final doctor = filteredDoctors[index];
+                  return Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
+                    child: _DoctorCard(
+                      doctor: doctor,
+                      onTap: () => _openDoctor(doctor),
                     ),
-                  ),
-                );
-              },
-              childCount: _filteredDoctors.length,
+                  );
+                },
+                childCount: filteredDoctors.length,
+              ),
             ),
-          ),
-
           const SliverToBoxAdapter(child: SizedBox(height: 24)),
-=======
-                      ],
-                    ),
-                    trailing: const Icon(Icons.chat_bubble_outline,
-                        color: Colors.teal),
-                    onTap: () {
-                      // ─────────────────────────────────────
-                      // PASSING DATA TO THE NEXT SCREEN:
-                      // the 'arguments' parameter can carry
-                      // ANY Dart object — here, a Doctor.
-                      // ─────────────────────────────────────
-                      Navigator.pushNamed(
-                        context,
-                        '/chat',
-                        arguments: doctor,
-                      );
-                    },
-                  ),
-                );
-              },
-            ),
-          ),
->>>>>>> 53f1c756c15a72f04b26b8f5a4ea12932d653af1
         ],
       ),
     );
   }
 }
-<<<<<<< HEAD
+
+class _HomeHeader extends StatelessWidget {
+  final TextEditingController searchController;
+  final ValueChanged<String> onSearchChanged;
+
+  const _HomeHeader({
+    required this.searchController,
+    required this.onSearchChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.fromLTRB(
+        24,
+        MediaQuery.of(context).padding.top + 16,
+        24,
+        24,
+      ),
+      decoration: const BoxDecoration(
+        color: AppTheme.primary,
+        borderRadius: BorderRadius.vertical(
+          bottom: Radius.circular(28),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Good morning, Jude',
+                    style: GoogleFonts.nunito(
+                      fontSize: 13,
+                      color: Colors.white.withOpacity(0.8),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Find a Doctor',
+                    style: GoogleFonts.nunito(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+              Stack(
+                children: [
+                  CircleAvatar(
+                    radius: 22,
+                    backgroundColor: Colors.white.withOpacity(0.2),
+                    child: const Icon(
+                      Icons.person,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                  ),
+                  Positioned(
+                    top: 0,
+                    right: 0,
+                    child: Container(
+                      width: 12,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        color: AppTheme.accent,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: AppTheme.primary, width: 2),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          TextField(
+            controller: searchController,
+            onChanged: onSearchChanged,
+            decoration: InputDecoration(
+              hintText: 'Search doctors, specialties...',
+              prefixIcon: const Icon(
+                Icons.search_rounded,
+                color: AppTheme.textLight,
+              ),
+              suffixIcon: searchController.text.isEmpty
+                  ? null
+                  : IconButton(
+                      icon: const Icon(
+                        Icons.close_rounded,
+                        color: AppTheme.textLight,
+                      ),
+                      onPressed: () {
+                        searchController.clear();
+                        onSearchChanged('');
+                      },
+                    ),
+              filled: true,
+              fillColor: Colors.white,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: BorderSide.none,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: BorderSide.none,
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: BorderSide.none,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CategorySection extends StatelessWidget {
+  final String selectedSpecialty;
+  final ValueChanged<String> onSelected;
+
+  const _CategorySection({
+    required this.selectedSpecialty,
+    required this.onSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 28, 24, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Categories', style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: 16),
+          SizedBox(
+            height: 94,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: categories.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 12),
+              itemBuilder: (context, index) {
+                final category = categories[index];
+                final specialty = category['specialty'] as String;
+                final isSelected = selectedSpecialty == specialty;
+
+                return GestureDetector(
+                  onTap: () => onSelected(specialty),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    width: 78,
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    decoration: BoxDecoration(
+                      color: isSelected ? AppTheme.primary : AppTheme.surface,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: isSelected
+                              ? AppTheme.primary.withOpacity(0.25)
+                              : Colors.black.withOpacity(0.04),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          category['icon'] as IconData,
+                          size: 28,
+                          color: isSelected ? Colors.white : AppTheme.primary,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          category['label'] as String,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.nunito(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            color: isSelected ? Colors.white : AppTheme.textMid,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SafetyBanner extends StatelessWidget {
+  const _SafetyBanner();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF27C69C), Color(0xFF0B8FAC)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Need urgent care?',
+                    style: GoogleFonts.nunito(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Start with an online consultation from home.',
+                    style: GoogleFonts.nunito(
+                      fontSize: 12,
+                      color: Colors.white.withOpacity(0.85),
+                      height: 1.4,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 16),
+            Container(
+              width: 58,
+              height: 58,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.18),
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: const Icon(
+                Icons.health_and_safety_rounded,
+                color: Colors.white,
+                size: 34,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _EmptyDoctorsState extends StatelessWidget {
+  const _EmptyDoctorsState();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 48, 24, 24),
+      child: Column(
+        children: [
+          Container(
+            width: 72,
+            height: 72,
+            decoration: const BoxDecoration(
+              color: AppTheme.primaryLight,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.search_off_rounded,
+              color: AppTheme.primary,
+              size: 34,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'No doctors found',
+            style: GoogleFonts.nunito(
+              fontWeight: FontWeight.w800,
+              fontSize: 16,
+              color: AppTheme.textDark,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Try another name, specialty, or category.',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.nunito(
+              color: AppTheme.textLight,
+              fontSize: 13,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 class _DoctorCard extends StatelessWidget {
   final Doctor doctor;
   final VoidCallback onTap;
 
-  const _DoctorCard({required this.doctor, required this.onTap});
+  const _DoctorCard({
+    required this.doctor,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -536,8 +475,11 @@ class _DoctorCard extends StatelessWidget {
                       width: 72,
                       height: 72,
                       color: AppTheme.primaryLight,
-                      child: const Icon(Icons.person,
-                          color: AppTheme.primary, size: 36),
+                      child: const Icon(
+                        Icons.person,
+                        color: AppTheme.primary,
+                        size: 36,
+                      ),
                     ),
                   ),
                 ),
@@ -551,8 +493,7 @@ class _DoctorCard extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: AppTheme.accent,
                         shape: BoxShape.circle,
-                        border:
-                            Border.all(color: Colors.white, width: 2),
+                        border: Border.all(color: Colors.white, width: 2),
                       ),
                     ),
                   ),
@@ -565,6 +506,8 @@ class _DoctorCard extends StatelessWidget {
                 children: [
                   Text(
                     doctor.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.nunito(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
@@ -574,6 +517,8 @@ class _DoctorCard extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     doctor.specialty,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.nunito(
                       fontSize: 12,
                       color: AppTheme.primary,
@@ -583,8 +528,11 @@ class _DoctorCard extends StatelessWidget {
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      const Icon(Icons.star_rounded,
-                          color: AppTheme.star, size: 16),
+                      const Icon(
+                        Icons.star_rounded,
+                        color: AppTheme.star,
+                        size: 16,
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         '${doctor.rating}',
@@ -602,8 +550,11 @@ class _DoctorCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 12),
-                      const Icon(Icons.work_outline_rounded,
-                          size: 12, color: AppTheme.textLight),
+                      const Icon(
+                        Icons.work_outline_rounded,
+                        size: 12,
+                        color: AppTheme.textLight,
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         '${doctor.experience} yrs',
@@ -617,6 +568,7 @@ class _DoctorCard extends StatelessWidget {
                 ],
               ),
             ),
+            const SizedBox(width: 12),
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
@@ -637,8 +589,8 @@ class _DoctorCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 10, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
                     color: doctor.isAvailable
                         ? AppTheme.accentLight
@@ -664,5 +616,3 @@ class _DoctorCard extends StatelessWidget {
     );
   }
 }
-=======
->>>>>>> 53f1c756c15a72f04b26b8f5a4ea12932d653af1

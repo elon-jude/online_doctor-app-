@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-<<<<<<< HEAD
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import '../theme/app_theme.dart';
 import '../models/models.dart';
+import '../theme/app_theme.dart';
 
 class ChatScreen extends StatefulWidget {
   final Doctor doctor;
@@ -25,28 +24,24 @@ class _ChatScreenState extends State<ChatScreen> {
       time: DateTime.now().subtract(const Duration(minutes: 10)),
     ),
     ChatMessage(
-      text: 'Hi Doctor, I\'ve been experiencing headaches frequently.',
+      text: 'Hi Doctor, I have been experiencing headaches frequently.',
       isMe: true,
       time: DateTime.now().subtract(const Duration(minutes: 9)),
     ),
     ChatMessage(
       text:
-          'I see. How long have you been having these headaches? And where exactly does it hurt?',
+          'I see. How long have you been having these headaches, and where exactly does it hurt?',
       isMe: false,
       time: DateTime.now().subtract(const Duration(minutes: 8)),
     ),
-    ChatMessage(
-      text: 'For about 2 weeks now. It\'s mostly on the left side of my head.',
-      isMe: true,
-      time: DateTime.now().subtract(const Duration(minutes: 7)),
-    ),
-    ChatMessage(
-      text:
-          'Thank you for sharing. Are you experiencing any other symptoms like nausea, sensitivity to light, or vision changes?',
-      isMe: false,
-      time: DateTime.now().subtract(const Duration(minutes: 5)),
-    ),
   ];
+
+  @override
+  void dispose() {
+    _msgController.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   void _sendMessage() {
     final text = _msgController.text.trim();
@@ -56,33 +51,32 @@ class _ChatScreenState extends State<ChatScreen> {
       _messages.add(ChatMessage(text: text, isMe: true, time: DateTime.now()));
       _msgController.clear();
     });
+    _scrollToBottom();
 
-    Future.delayed(const Duration(milliseconds: 100), () {
+    Future.delayed(const Duration(seconds: 2), () {
+      if (!mounted) return;
+      setState(() {
+        _messages.add(
+          ChatMessage(
+            text:
+                'Thank you. Let me review your information and get back to you shortly.',
+            isMe: false,
+            time: DateTime.now(),
+          ),
+        );
+      });
+      _scrollToBottom();
+    });
+  }
+
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_scrollController.hasClients) return;
       _scrollController.animateTo(
         _scrollController.position.maxScrollExtent,
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeOut,
       );
-    });
-
-    // Simulate reply
-    Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) {
-        setState(() {
-          _messages.add(ChatMessage(
-            text: 'Thank you. Let me review your information and get back to you shortly.',
-            isMe: false,
-            time: DateTime.now(),
-          ));
-        });
-        Future.delayed(const Duration(milliseconds: 100), () {
-          _scrollController.animateTo(
-            _scrollController.position.maxScrollExtent,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOut,
-          );
-        });
-      }
     });
   }
 
@@ -107,32 +101,40 @@ class _ChatScreenState extends State<ChatScreen> {
                   width: 38,
                   height: 38,
                   color: AppTheme.primaryLight,
-                  child: const Icon(Icons.person,
-                      color: AppTheme.primary, size: 20),
+                  child: const Icon(
+                    Icons.person,
+                    color: AppTheme.primary,
+                    size: 20,
+                  ),
                 ),
               ),
             ),
             const SizedBox(width: 10),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(widget.doctor.name,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.doctor.name,
+                    overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.nunito(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
                       color: AppTheme.textDark,
-                    )),
-                Text(
-                  widget.doctor.isAvailable ? 'Online' : 'Away',
-                  style: GoogleFonts.nunito(
-                    fontSize: 11,
-                    color: widget.doctor.isAvailable
-                        ? AppTheme.accent
-                        : AppTheme.textLight,
-                    fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
-              ],
+                  Text(
+                    widget.doctor.isAvailable ? 'Online' : 'Away',
+                    style: GoogleFonts.nunito(
+                      fontSize: 11,
+                      color: widget.doctor.isAvailable
+                          ? AppTheme.accent
+                          : AppTheme.textLight,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -155,15 +157,18 @@ class _ChatScreenState extends State<ChatScreen> {
               padding: const EdgeInsets.all(16),
               itemCount: _messages.length,
               itemBuilder: (context, index) {
-                final msg = _messages[index];
-                return _ChatBubble(message: msg, doctor: widget.doctor);
+                final message = _messages[index];
+                return _ChatBubble(message: message, doctor: widget.doctor);
               },
             ),
           ),
-          // Input bar
           Container(
             padding: EdgeInsets.fromLTRB(
-                16, 12, 16, MediaQuery.of(context).padding.bottom + 12),
+              16,
+              12,
+              16,
+              MediaQuery.of(context).padding.bottom + 12,
+            ),
             decoration: const BoxDecoration(
               color: Colors.white,
               boxShadow: [
@@ -177,8 +182,10 @@ class _ChatScreenState extends State<ChatScreen> {
             child: Row(
               children: [
                 IconButton(
-                  icon: const Icon(Icons.attach_file_rounded,
-                      color: AppTheme.textLight),
+                  icon: const Icon(
+                    Icons.attach_file_rounded,
+                    color: AppTheme.textLight,
+                  ),
                   onPressed: () {},
                 ),
                 Expanded(
@@ -187,7 +194,9 @@ class _ChatScreenState extends State<ChatScreen> {
                     decoration: InputDecoration(
                       hintText: 'Type a message...',
                       hintStyle: GoogleFonts.nunito(
-                          color: AppTheme.textLight, fontSize: 14),
+                        color: AppTheme.textLight,
+                        fontSize: 14,
+                      ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(24),
                         borderSide: const BorderSide(color: AppTheme.divider),
@@ -198,11 +207,15 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(24),
-                        borderSide:
-                            const BorderSide(color: AppTheme.primary, width: 1.5),
+                        borderSide: const BorderSide(
+                          color: AppTheme.primary,
+                          width: 1.5,
+                        ),
                       ),
                       contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 10),
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
                       fillColor: AppTheme.background,
                       filled: true,
                     ),
@@ -220,8 +233,11 @@ class _ChatScreenState extends State<ChatScreen> {
                       color: AppTheme.primary,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.send_rounded,
-                        color: Colors.white, size: 20),
+                    child: const Icon(
+                      Icons.send_rounded,
+                      color: Colors.white,
+                      size: 20,
+                    ),
                   ),
                 ),
               ],
@@ -259,8 +275,11 @@ class _ChatBubble extends StatelessWidget {
                   width: 32,
                   height: 32,
                   color: AppTheme.primaryLight,
-                  child:
-                      const Icon(Icons.person, color: AppTheme.primary, size: 18),
+                  child: const Icon(
+                    Icons.person,
+                    color: AppTheme.primary,
+                    size: 18,
+                  ),
                 ),
               ),
             ),
@@ -268,17 +287,16 @@ class _ChatBubble extends StatelessWidget {
           ],
           Flexible(
             child: Column(
-              crossAxisAlignment: message.isMe
-                  ? CrossAxisAlignment.end
-                  : CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  message.isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
               children: [
                 Container(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 12),
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
-                    color: message.isMe
-                        ? AppTheme.primary
-                        : AppTheme.surface,
+                    color: message.isMe ? AppTheme.primary : AppTheme.surface,
                     borderRadius: BorderRadius.only(
                       topLeft: const Radius.circular(18),
                       topRight: const Radius.circular(18),
@@ -297,8 +315,7 @@ class _ChatBubble extends StatelessWidget {
                     message.text,
                     style: GoogleFonts.nunito(
                       fontSize: 14,
-                      color:
-                          message.isMe ? Colors.white : AppTheme.textDark,
+                      color: message.isMe ? Colors.white : AppTheme.textDark,
                       height: 1.4,
                       fontWeight: FontWeight.w500,
                     ),
@@ -323,212 +340,6 @@ class _ChatBubble extends StatelessWidget {
               child: Icon(Icons.person, color: AppTheme.primary, size: 18),
             ),
           ],
-=======
-import 'home_screen.dart'; // we need the Doctor class
-import 'package:app/models/doctor.dart'; // we need the Doctor class 
-// A tiny model for one chat message.
-class ChatMessage {
-  final String text;
-  final bool isMe; // true = patient (user), false = doctor
- 
-  ChatMessage({required this.text, required this.isMe});
-}
- 
-class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key});
- 
-  @override
-  State<ChatScreen> createState() => _ChatScreenState();
-}
- 
-class _ChatScreenState extends State<ChatScreen> {
-  final _messageController = TextEditingController();
-  final _scrollController = ScrollController();
- 
-  final List<ChatMessage> _messages = [
-    ChatMessage(
-      text: 'Hello! I am your consulting doctor today. '
-          'How can I help you?',
-      isMe: false,
-    ),
-  ];
- 
-  @override
-  void dispose() {
-    _messageController.dispose();
-    _scrollController.dispose();
-    super.dispose();
-  }
- 
-  void _sendMessage() {
-    final text = _messageController.text.trim();
-    if (text.isEmpty) return; // ignore empty messages
- 
-    setState(() {
-      _messages.add(ChatMessage(text: text, isMe: true));
-    });
-    _messageController.clear();
-    _scrollToBottom();
- 
-    // Simulate the doctor typing and replying after 1.5 seconds.
-    Future.delayed(const Duration(milliseconds: 1500), () {
-      if (mounted) {
-        setState(() {
-          _messages.add(ChatMessage(
-            text: 'Thank you for sharing that. Could you tell me '
-                'how long you have been experiencing this?',
-            isMe: false,
-          ));
-        });
-        _scrollToBottom();
-      }
-    });
-  }
- 
-  void _scrollToBottom() {
-    // Wait one frame so the new message is laid out, then scroll.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_scrollController.hasClients) {
-        _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
-      }
-    });
-  }
- 
-  @override
-  Widget build(BuildContext context) {
-    // ─────────────────────────────────────────────
-    // RECEIVING THE ARGUMENT sent from HomeScreen.
-    // We cast it back to a Doctor object.
-    // ─────────────────────────────────────────────
-    final doctor = ModalRoute.of(context)!.settings.arguments as Doctor;
- 
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.teal,
-        foregroundColor: Colors.white,
-        // The back arrow appears automatically (we were pushed),
-        // and tapping it calls Navigator.pop(context) for us.
-        title: Row(
-          children: [
-            const CircleAvatar(
-              backgroundColor: Colors.white,
-              child: Icon(Icons.person, color: Colors.teal),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(doctor.name,
-                      style: const TextStyle(fontSize: 16),
-                      overflow: TextOverflow.ellipsis),
-                  Text(
-                    doctor.isOnline ? 'Online' : 'Offline',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: doctor.isOnline
-                          ? Colors.greenAccent
-                          : Colors.white70,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-      body: Column(
-        children: [
-          // ── MESSAGE LIST ──
-          Expanded(
-            child: ListView.builder(
-              controller: _scrollController,
-              padding: const EdgeInsets.all(12),
-              itemCount: _messages.length,
-              itemBuilder: (context, index) {
-                final message = _messages[index];
-                return Align(
-                  // My messages on the right, doctor's on the left.
-                  alignment: message.isMe
-                      ? Alignment.centerRight
-                      : Alignment.centerLeft,
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(vertical: 4),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 10),
-                    constraints: BoxConstraints(
-                      maxWidth: MediaQuery.of(context).size.width * 0.75,
-                    ),
-                    decoration: BoxDecoration(
-                      color: message.isMe ? Colors.teal : Colors.white,
-                      borderRadius: BorderRadius.only(
-                        topLeft: const Radius.circular(16),
-                        topRight: const Radius.circular(16),
-                        bottomLeft: Radius.circular(message.isMe ? 16 : 4),
-                        bottomRight: Radius.circular(message.isMe ? 4 : 16),
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 4,
-                        ),
-                      ],
-                    ),
-                    child: Text(
-                      message.text,
-                      style: TextStyle(
-                        color: message.isMe ? Colors.white : Colors.black87,
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
- 
-          // ── MESSAGE INPUT BAR ──
-          Container(
-            padding: const EdgeInsets.all(8),
-            color: Colors.white,
-            child: SafeArea(
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _messageController,
-                      textCapitalization: TextCapitalization.sentences,
-                      decoration: InputDecoration(
-                        hintText: 'Describe your symptoms...',
-                        contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 10),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(24),
-                          borderSide: BorderSide.none,
-                        ),
-                        filled: true,
-                        fillColor: const Color(0xFFF0F2F5),
-                      ),
-                      onSubmitted: (_) => _sendMessage(),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  CircleAvatar(
-                    backgroundColor: Colors.teal,
-                    child: IconButton(
-                      icon: const Icon(Icons.send,
-                          color: Colors.white, size: 20),
-                      onPressed: _sendMessage,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
->>>>>>> 53f1c756c15a72f04b26b8f5a4ea12932d653af1
         ],
       ),
     );
